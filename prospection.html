@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospection Resto</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --panel-2: #1e2230;
+    --border: #2a2f3f;
+    --text: #eef0f5;
+    --muted: #8b90a3;
+    --accent: #ff6b4a;
+    --accent-2: #ffb14a;
+    --good: #4ade80;
+    --mid: #fbbf24;
+    --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 2.5rem 2rem 1.5rem;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0 0 0.4rem;
+    font-size: 1.9rem;
+    letter-spacing: -0.02em;
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .search-bar {
+    max-width: 560px;
+    margin: 1.5rem auto 0;
+    display: flex;
+    gap: 0.6rem;
+    padding: 0 1rem;
+  }
+  .search-bar input {
+    flex: 1;
+    padding: 0.85rem 1.1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+  }
+  .search-bar input::placeholder { color: var(--muted); }
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar button {
+    padding: 0.85rem 1.4rem;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #1a1a1a;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .search-bar button:hover { filter: brightness(1.05); }
+
+  main { max-width: 980px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+  .status-line {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+    min-height: 1.2rem;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .toolbar select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    transition: border-color 0.15s ease;
+  }
+  .card:hover { border-color: #3a3f52; }
+
+  .score {
+    flex-shrink: 0;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #10121a;
+  }
+  .score.good { background: var(--good); }
+  .score.mid { background: var(--mid); }
+  .score.bad { background: var(--bad); }
+
+  .info { flex: 1; min-width: 0; }
+  .info h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .info .meta {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tag {
+    font-size: 0.72rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--panel-2);
+    white-space: nowrap;
+  }
+  .tag.warn { color: var(--bad); border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.08); }
+  .tag.ok { color: var(--good); border-color: rgba(74,222,128,0.35); background: rgba(74,222,128,0.08); }
+
+  .side {
+    text-align: right;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  .side .rating { font-size: 0.85rem; color: var(--muted); }
+  .side .rating strong { color: var(--text); }
+  .side button {
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  .side button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 3rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 1rem;
+  }
+
+  @media (max-width: 620px) {
+    .card { flex-wrap: wrap; }
+    .side { align-items: flex-start; width: 100%; flex-direction: row; justify-content: space-between; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔎 Prospection Resto</h1>
+  <p>Entrez une ville, on liste les restaurants et on les score pour la prospection site web.</p>
+  <div class="search-bar">
+    <input type="text" id="cityInput" placeholder="Ex: Lyon, Bordeaux, Lille..." />
+    <button id="searchBtn">Chercher</button>
+  </div>
+</header>
+
+<main>
+  <div class="status-line" id="statusLine"></div>
+  <div class="toolbar" id="toolbar" style="display:none;">
+    <span id="resultCount"></span>
+    <select id="sortSelect">
+      <option value="score-desc">Score : le plus chaud d'abord</option>
+      <option value="score-asc">Score : le moins chaud d'abord</option>
+      <option value="rating-desc">Note Google : la plus haute</option>
+    </select>
+  </div>
+  <div id="results"></div>
+</main>
+
+<footer>Maquette / données factices — pas encore connectée à une vraie source de données.</footer>
+
+<script>
+  const cuisines = ["Italien", "Japonais", "Français", "Burger", "Pizzeria", "Libanais", "Indien", "Brunch", "Fruits de mer", "Bistrot"];
+  const names = ["Le Petit", "Chez", "La Table", "L'Atelier", "Le Comptoir", "La Cantine", "O'", "Le Bistrot", "La Brasserie", "Le Jardin"];
+  const suffixes = ["Gourmand", "du Centre", "des Halles", "Bleu", "d'Or", "Moderne", "de la Place", "Rouge", "du Marché", "Secret"];
+
+  function seededRandom(seed) {
+    let s = seed;
+    return function () {
+      s = (s * 9301 + 49297) % 233280;
+      return s / 233280;
+    };
+  }
+
+  function hashCity(city) {
+    let h = 0;
+    for (let i = 0; i < city.length; i++) h = (h * 31 + city.charCodeAt(i)) >>> 0;
+    return h || 1;
+  }
+
+  function generateRestaurants(city) {
+    const rand = seededRandom(hashCity(city.toLowerCase().trim()));
+    const count = 6 + Math.floor(rand() * 6);
+    const list = [];
+    for (let i = 0; i < count; i++) {
+      const name = `${names[Math.floor(rand() * names.length)]} ${suffixes[Math.floor(rand() * suffixes.length)]}`;
+      const cuisine = cuisines[Math.floor(rand() * cuisines.length)];
+      const rating = (3.2 + rand() * 1.7).toFixed(1);
+      const reviews = Math.floor(20 + rand() * 480);
+      const hasWebsite = rand() > 0.45;
+      const websiteOutdated = hasWebsite && rand() > 0.5;
+      const hasSocial = rand() > 0.35;
+      const claimedGoogle = rand() > 0.3;
+
+      let score = 0;
+      if (!hasWebsite) score += 45;
+      else if (websiteOutdated) score += 25;
+      else score += 5;
+
+      if (!claimedGoogle) score += 15;
+      if (!hasSocial) score += 10;
+      score += Math.min(20, Math.round(reviews / 25));
+      score += Math.round((5 - rating) * 6);
+      score = Math.max(5, Math.min(98, Math.round(score)));
+
+      list.push({ name, cuisine, rating, reviews, hasWebsite, websiteOutdated, hasSocial, claimedGoogle, score, city });
+    }
+    return list;
+  }
+
+  function scoreClass(score) {
+    if (score >= 65) return "good";
+    if (score >= 40) return "mid";
+    return "bad";
+  }
+
+  function renderCard(r) {
+    const cls = scoreClass(r.score);
+    const tags = [];
+    if (!r.hasWebsite) tags.push('<span class="tag warn">Pas de site web</span>');
+    else if (r.websiteOutdated) tags.push('<span class="tag warn">Site vieillissant</span>');
+    else tags.push('<span class="tag ok">Site à jour</span>');
+
+    tags.push(r.claimedGoogle
+      ? '<span class="tag ok">Fiche Google gérée</span>'
+      : '<span class="tag warn">Fiche Google non gérée</span>');
+
+    tags.push(r.hasSocial
+      ? '<span class="tag ok">Actif sur les réseaux</span>'
+      : '<span class="tag warn">Pas de réseaux sociaux</span>');
+
+    return `
+      <div class="card">
+        <div class="score ${cls}">${r.score}</div>
+        <div class="info">
+          <h3>${r.name}</h3>
+          <div class="meta">${r.cuisine} · ${r.city}</div>
+          <div class="tags">${tags.join("")}</div>
+        </div>
+        <div class="side">
+          <div class="rating">⭐ <strong>${r.rating}</strong> (${r.reviews} avis)</div>
+          <button type="button">Voir la fiche</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function sortResults(list, mode) {
+    const copy = [...list];
+    if (mode === "score-desc") copy.sort((a, b) => b.score - a.score);
+    if (mode === "score-asc") copy.sort((a, b) => a.score - b.score);
+    if (mode === "rating-desc") copy.sort((a, b) => b.rating - a.rating);
+    return copy;
+  }
+
+  let currentResults = [];
+
+  function renderAll() {
+    const sortMode = document.getElementById("sortSelect").value;
+    const sorted = sortResults(currentResults, sortMode);
+    document.getElementById("results").innerHTML = sorted.map(renderCard).join("");
+  }
+
+  function search() {
+    const city = document.getElementById("cityInput").value.trim();
+    const statusLine = document.getElementById("statusLine");
+    const toolbar = document.getElementById("toolbar");
+    const results = document.getElementById("results");
+
+    if (!city) {
+      statusLine.textContent = "Entrez une ville pour lancer la recherche.";
+      toolbar.style.display = "none";
+      results.innerHTML = "";
+      return;
+    }
+
+    statusLine.textContent = `Recherche des restaurants à ${city}...`;
+    toolbar.style.display = "none";
+    results.innerHTML = "";
+
+    setTimeout(() => {
+      currentResults = generateRestaurants(city);
+      statusLine.textContent = `Résultats pour "${city}" (données factices — démo)`;
+      toolbar.style.display = "flex";
+      document.getElementById("resultCount").textContent = `${currentResults.length} restaurants trouvés`;
+      renderAll();
+    }, 350);
+  }
+
+  document.getElementById("searchBtn").addEventListener("click", search);
+  document.getElementById("cityInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") search();
+  });
+  document.getElementById("sortSelect").addEventListener("change", renderAll);
+</script>
+
+</body>
+</html>
